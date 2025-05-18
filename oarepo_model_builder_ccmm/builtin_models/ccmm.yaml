@@ -1,0 +1,228 @@
+#
+# This is a CCMM YAML file that is to be used in production repositories (not NMA)
+#
+dataset-metadata:
+  $id: dataset-metadata
+  properties:
+    title:
+      type: fulltext+keyword
+      label.en: Title
+      hint.en: A name given to the dataset.
+      required: true
+
+    alternate_titles[]:
+      properties:
+        title:
+          type: i18nStr
+          required: true
+        titleType:
+          type: vocabulary
+          vocabulary-type: title-types
+          required: true
+          label.cs: Typ názvu
+          label.en: Title Type
+      ^label.en: Alternate titles
+      ^hint.en: Alternate titles for the dataset (apart from the primary title).
+
+    resource_type:
+      type: vocabulary
+      vocabulary-type: resource-types
+      label.en: Resource type
+      hint.en: A description of the dataset.
+      required: true
+
+    alternate_identifiers[]:
+      use: rdm-elements#identifier
+      ^label.en: Alternate identifiers
+      ^hint.en: An alternate identifier for the dataset (apart from the primary DOI).
+      ^marshmallow:
+        field: "{{oarepo_runtime.services.schema.rdm.RecordIdentifierField}}()"
+
+    primary_language:
+      type: vocabulary
+      vocabulary-type: languages
+      label.en: Primary language
+      hint.en: The primary language of the dataset.
+
+    other_languages[]:
+      type: vocabulary
+      vocabulary-type: languages
+      ^label.en: Other languages
+      ^hint.en: Other languages of the dataset
+
+    descriptions[]:
+      type: i18nStr
+      ^label.en: Descriptions
+      ^hint.en: Description of the dataset.
+
+    # will be converted from the date_issued
+    # publication_year:
+    #   type: integer
+    #   label.en: Publication year
+    #   hint.en: The year when the item was or will be made publicly available.
+
+    related_resources[]:
+      use: ccmm#resource
+      ^label.en: Related resources
+      ^hint.en: A related resource to the dataset.
+
+    terms_of_use:
+      use: ccmm#terms_of_use
+      label.en: Terms of use
+      hint.en: The terms of use for the dataset.
+
+    funding_references[]:
+      use: rdm-elements#funding
+      ^label.en: Funding
+
+    subjects[]:
+      use: ccmm#subject
+      ^label.en: Subjects
+      ^hint.en: Subjects of the dataset.
+
+    date_issued:
+      type: date
+      required: true
+      label.en: Date Issued
+
+    time_references[]:
+      use: ccmm#time_reference
+      ^label.en: Time references
+
+    creators[]:
+      use: rdm-elements#creatibutor
+      ^label.en: Creators
+      ^hint.en: People or organizations responsible for creating the dataset.
+
+    contributors[]:
+      use: rdm-elements#creatibutor
+      ^label.en: Contributors
+      ^hint.en: People or organizations responsible for contributing to the dataset.
+
+    publisher:
+      use: rdm-elements#creatibutor
+      label.en: Publisher
+      hint.en: Person or organization responsible for publishing the dataset.
+
+    # not converted yet !!!
+    # provenance
+    # locations
+    # validation_results
+    # is_described_by
+
+resource:
+  $id: resource
+  properties:
+    relationType:
+      type: vocabulary
+      vocabulary-type: relation-types
+      label.en: Relation type
+      hint.en: Type of the relation between Dataset and related resource.
+    type:
+      type: vocabulary
+      vocabulary-type: resource-types
+      label.en: Resource Type
+      hint.en: A description of the resource.
+    title:
+      type: fulltext+keyword
+      label.en: Title - Title of the related item.
+    resource_url:
+      type: url
+      label.en: Resource URL
+      hint.en: Resolvable URL representing the resource, preferably human readable.
+    creators[]:
+      use: rdm-elements#creatibutor
+      ^label.en: Creators
+      ^hint.en: People or organizations responsible for creating the resource.
+    contributors[]:
+      use: rdm-elements#creatibutor
+      ^label.en: Contributors
+      ^hint.en: People or organizations responsible for contributing to the resource.
+    publisher:
+      use: rdm-elements#creatibutor
+      label.en: Publisher
+      hint.en: Person or organization responsible for publishing the resource.
+    time_references[]:
+      use: ccmm#time_reference
+      ^label.en: Dates
+    identifiers[]:
+      use: rdm-elements#identifier
+      ^label.en: Identifiers
+      ^marshmallow:
+        field: "{{oarepo_runtime.services.schema.rdm.RelatedRecordIdentifierField}}()"
+
+    # TODO: journal for articles
+    # TODO: event for conference papers
+
+terms_of_use:
+  $id: terms_of_use
+  properties:
+    descriptions[]:
+      type: i18nStr
+      ^label.en: Descriptions
+      ^hint.en: Description of the dataset.
+    licenses[]:
+      type: url
+      ^label.en: Licenses
+      ^hint.en: Licenses of the dataset, must be resolvable URLs.
+    access_rights:
+      type: vocabulary
+      vocabulary-type: access-rights
+      label.en: Access rights
+      hint.en: Information about who access the resource or an indication of its security status.
+    # TODO: contacts[]:
+    #   ^label.en: Contacts
+
+subject:
+  $id: subject
+  label.cs: Klíčové slovo
+  label.en: Keyword
+  properties:
+    subjectScheme:
+      type: vocabulary
+      vocabulary-type: subject-schemes
+      label.cs: Schema klíčového slova
+      label.en: Subject Scheme
+
+    subject:
+      type: multilingual
+      required: true
+      label.cs: Klíčová slova
+      label.en: Keywords
+      ui:
+        detail: string
+        marshmallow:
+          field: "{{oarepo_runtime.services.schema.i18n_ui.I18nStrUIField}}()"
+
+    iri:
+      type: url
+      label.cs: Definice klíčového slova
+      label.en: Subject Definition URI
+      sample:
+        faker: url
+
+    classificationCode:
+      type: keyword
+
+time_reference:
+  $id: time_reference
+  properties:
+    date_information:
+      type: keyword
+      label.en: Date information
+      hint.en: Additional information to the date in text form.
+    date_type:
+      type: vocabulary
+      vocabulary-type: time-reference-types
+      label.en: Date type
+      hint.en: Type of the date.
+    date:
+      type: date
+      label.en: Date
+      hint.en: A point of time associated with an event in the lifecycle of the resource.
+
+dataset:
+  $id: dataset
+  properties:
+    metadata:
+      use: ccmm#dataset-metadata
