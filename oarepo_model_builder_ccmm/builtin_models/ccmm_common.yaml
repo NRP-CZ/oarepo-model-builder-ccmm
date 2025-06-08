@@ -1,0 +1,439 @@
+#
+# This file is a definition of the CCMM model. It does not give the communication
+# ccmm model - there the controlled vocabularies are implemented differently (with RDF URIs).
+# The harvesting layer/serializaiton layer is responsible for converting those
+# to the internal ccmm model.
+#
+# It should be consistent with the xml schema of **CCMM release 0.5.0**. Where there are
+# differences, they are marked with "implementation note" comments.
+#
+# This is a base model, which contains elements that are not specific to invenio RDM.
+# Several of the elements are not included here if they have a RDM alternative.
+# For production repositories, use the ccmm.yaml that adds the RDM-specific elements.
+#
+# For NMA, use the ccmm-nma.yaml that implements these in a CCMM way (useful for display,
+# not usable for editing).
+dataset-metadata:
+  $id: dataset-metadata
+  properties:
+    title:
+      type: fulltext+keyword
+      label.en: Title
+      hint.en: A name given to the dataset.
+      label.cs: Název
+      hint.cs: Název datasetu
+      required: true
+
+    alternate_titles[]:
+      ^label.en: Alternate titles
+      ^hint.en: Alternate titles of the dataset (apart from the primary title).
+      ^label.cs: Alternativní názvy
+      ^hint.cs: Alternativní názvy datasetu
+      properties:
+        iri:
+          type: keyword
+          label.en: IRI
+          help.en: IRI of the alternate title, must be a resolvable URL pointing to the definition of the alternate title.
+          label.cs: IRI
+          help.cs: IRI alternativního názvu, musí být URL vedoucí k definici alternativního názvu.
+          # implementation note: this IRI will not be shown anywhere in the UI
+          # nor is editable
+        title:
+          # implementation note: html support here?
+          type: multilingual
+          label.cs: Alternativní název
+          label.en: Alternate title
+          hint.cs: Alternativní název datasetu
+          hint.en: Alternate title of the dataset
+          required: true
+        type:
+          type: vocabulary
+          vocabulary-type: title-types
+          label.en: Title Type
+          label.cs: Typ názvu
+          required: true
+
+    descriptions[]:
+      # TODO: need i18nHTML here (model extension)
+      type: i18nStr
+      ^label.en: Descriptions
+      ^hint.en: Description of the dataset.
+      ^label.cs: Popisy
+      ^hint.cs: Popisy datasetu
+
+    # identifiers[]:
+    #    ... this element is different in production and NMA repositories
+    #    see ccmm.yaml and ccmm-nma.yaml for their definitions
+
+    resource_type:
+      type: vocabulary
+      vocabulary-type: resource-types
+      label.en: Resource type
+      hint.en: Type of the dataset.
+      label.cs: Typ zdroje
+      hint.cs: Typ datasetu
+      required: true
+
+    primary_language:
+      type: vocabulary
+      vocabulary-type: languages
+      label.en: Primary language
+      help.en:
+        The primary language of the dataset. Might be unfilled if the dataset
+        is language neutral.
+      label.cs: Primární jazyk
+      help.cs: Primární jazyk datasetu. Může být prázdný, pokud je dataset jazykově neutrální.
+
+    other_languages[]:
+      type: vocabulary
+      vocabulary-type: languages
+      ^label.en: Other languages
+      ^hint.en: Other languages of the dataset
+      ^label.cs: Další jazyky
+      ^hint.cs: Další jazyky datasetu
+
+    # related_resources[]:
+    # related resources are not present here, as they are implemented in RDM
+    # differently, see ccmm-rdm.yaml and ccmm-nma.yaml for their definitions
+
+    time_references[]:
+      use: ccmm-common#time_reference
+      ^label.en: Time references
+      ^hint.en: Time references of the dataset.
+      ^label.cs: Časové údaje
+      ^hint.cs: Časové údaje datasetu
+
+    # terms_of_use:
+    # terms of use are not present here, as they are implemented in RDM
+    # differently, see ccmm-rdm.yaml and ccmm-nma.yaml for their definitions
+
+    # locations[]:
+    # locations are not present here, as they are implemented in RDM
+    # differently, see ccmm-rdm.yaml and ccmm-nma.yaml for their definitions
+
+    provenances[]:
+      use: ccmm-common#provenance_statement
+      ^label.en: Provenance statements
+      ^help.en: Statements about the lineage of this dataset.
+
+    # subjects[]:
+    # subjects are not present here, as they are implemented in RDM
+    # differently, see ccmm-rdm.yaml and ccmm-nma.yaml for their definitions
+
+    validation_results[]:
+      use: ccmm-common#validation_result
+      ^label.en: Validation results
+      ^help.en: Validation results of the dataset.
+      ^label.cs: Výsledky validace
+      ^help.cs: Výsledky validace datasetu
+
+resource:
+  $id: resource
+  properties:
+    iri:
+      type: keyword
+      label.en: Resource IRI
+      help.en: IRI of the resource, must be a resolvable URL pointing to the definition of the resource.
+      label.cs: IRI zdroje
+      help.cs: IRI zdroje, musí být URL vedoucí k definici zdroje.
+      # implementation note: this IRI will not be shown anywhere in the UI,
+      # it is a RDF-only thing
+
+    title:
+      # TODO: consider unifying "simple resource" (has IRI and label) and
+      # "full resource" (this definition) - so rename "label" to "title"
+      # and use the same multilingual type for both
+      type: fulltext+keyword
+      label.en: Title
+      hint.en: Title of the related item.
+      label.cs: Název
+      hint.cs: Název souvisejícího zdroje
+
+    resource_url:
+      type: url
+      label.en: Resource URL
+      hint.en: Resolvable URL representing the resource, preferably human readable.
+      label.cs: URL zdroje
+      hint.cs: URL vedoucí k souvisejícímu zdroji, nejlépe čitelný pro člověka
+
+    relation_type:
+      type: vocabulary
+      vocabulary-type: relation-types
+      label.en: Relation type
+      hint.en: Type of the relation between Dataset and related resource.
+      label.cs: Typ vztahu
+      hint.cs: Typ vztahu mezi datasetem a souvisejícím zdrojem
+
+    type:
+      type: vocabulary
+      vocabulary-type: resource-types
+      label.en: Type
+      help.en:
+        A description of the resource. Gets the value from controlled list
+        https://datacite-metadata-schema.readthedocs.io/en/4.6/appendices/appendix-1/resourceTypeGeneral/.
+      label.cs: Typ zdroje
+      help.cs: Popis zdroje. Hodnota je z řízeného seznamu
+        https://datacite-metadata-schema.readthedocs.io/en/4.6/appendices/appendix-1/resourceTypeGeneral/.
+
+    time_references[]:
+      use: ccmm-common#time_reference
+      ^label.en: Time references
+      ^hint.en: Time references of the related resource.
+      ^label.cs: Časové údaje
+      ^hint.cs: Časové údaje souvisejícího zdroje
+
+    # qualified_relations[]: are not present here, as they are implemented in RDM
+    # differently
+
+    # identifiers[]: are not present here, as they are implemented in RDM
+    # differently, see ccmm-rdm.yaml and ccmm-nma.yaml for their definitions
+
+terms_of_use:
+  $id: terms_of_use
+  properties:
+    iri:
+      type: keyword
+      label.cs: IRI podmínek užití
+      label.en: IRI of terms of use
+      help.cs: IRI podmínek užití, musí být URL vedoucí k definici podmínek užití.
+      help.en: IRI of terms of use, must be a resolvable URL pointing to the definition of the terms of use.
+
+    description[]:
+      # implementation note: need i18nHTML here (model extension)
+      # implementation note: this is not a multilingual string, but a list
+      # of strings and languages
+      type: i18nStr
+      ^label.en: Descriptions of terms of use
+      ^hint.en: Description of the terms of use of the dataset.
+      ^label.cs: Popisy podmínek užití
+      ^hint.cs: Popisy podmínek užití datasetu
+      # implementation note: in 0.5.0 it is a plain string, not multilingual
+
+    # licences[]:
+    # licenses are not present here, as they are implemented in RDM
+    # differently, see ccmm-rdm.yaml and ccmm-nma.yaml for their definitions
+
+    access_rights:
+      type: vocabulary
+      vocabulary-type: access-rights
+      label.en: Access rights
+      hint.en: Information about who access the resource or an indication of its security status.
+      label.cs: Práva k přístupu
+      hint.cs: Informace o tom, kdo má přístup k datasetu nebo indikace jeho bezpečnostního statusu
+
+location:
+  $id: location
+  properties:
+    iri:
+      type: keyword
+      label.en: Location IRI
+      help.en: IRI of the location, must be a resolvable URL pointing to the definition of the location.
+      label.cs: IRI lokace
+      help.cs: IRI lokace, musí být URL vedoucí k definici lokace.
+      # implementation note: this IRI will not be shown anywhere in the UI
+    bbox:
+      use: ccmm-common#ows:BoundingBoxType
+      label.en: Bbox
+      help.en: Bounding box of the location geometry.
+      label.cs: Ohraničující obdélník
+      help.cs: Ohraničující obdélník geometrie lokace.
+    names[]:
+      type: keyword
+      ^label.en: Location names
+      ^help.en: Names of the spatial location.
+      ^label.cs: Názvy lokace
+      ^help.cs: Názvy prostorové lokace
+      # implementation note: renamed, see https://github.com/EOSC-CZ/CCMM/issues/39
+    relation_type:
+      type: vocabulary
+      vocabulary-type: location-relation-types
+      label.en: Relation of the location to the dataset
+      help.en: Relation of the location to the dataset.
+      label.cs: Vztah lokace k datasetu
+      help.cs: Vztah lokace k datasetu.
+      # implementation note: renamed, see https://github.com/EOSC-CZ/CCMM/issues/39
+    geometry:
+      use: ccmm-common#geometry
+      label.en: Geometry
+      help.en: The corresponding geometry for a resource.
+      label.cs: Geometrie
+      help.cs: Odpovídající geometrie pro zdroj.
+
+    # related_objects[]:
+    # related objects are not present here, as they are implemented in RDM
+    # differently, see ccmm-rdm.yaml and ccmm-nma.yaml for their definitions
+
+simple_resource:
+  $id: simple_resource
+  properties:
+    iri:
+      type: keyword
+      label.en: Resource IRI
+      help.en: IRI of the resource, must be a resolvable URL pointing to the definition of the resource.
+      label.cs: IRI zdroje
+      help.cs: IRI zdroje, musí být URL vedoucí k definici zdroje.
+      # implementation note: this IRI will not be shown anywhere in the UI,
+      # it is a RDF-only thing
+
+    label:
+      type: multilingual
+      label.en: Label
+      hint.en: Label of the related item.
+      label.cs: Popisek
+      hint.cs: Popisek souvisejícího zdroje
+
+geometry:
+  $id: geometry
+  # use: ccmm-common#simple_resource
+  properties:
+    iri:
+      type: keyword
+      # implementation note: this IRI will must be resolvable and points to the
+      # application profile stored in an external system. It will be displayed
+      # as a link to the application profile with the label from the labels field
+      label.en: Geometry IRI
+      help.en: IRI of the geometry, must be a resolvable URL pointing to the definition of the geometry.
+      label.cs: IRI geometrie
+      help.cs: IRI geometrie, musí být URL vedoucí k definici geometrie.
+    label:
+      type: multilingual
+      label.en: Label
+      help.en: Label of the geometry
+      label.cs: Popisek
+      help.cs: Popisek geometrie
+
+ows:BoundingBoxType:
+  $id: ows:BoundingBoxType
+  properties:
+    LowerCorner[]:
+      type: float
+      required: true
+      ^label.en: Lower corner
+      ^help.en: Coordinates of the south-west corner, where the coordinates are minimal
+      ^label.cs: Dolní roh
+      ^help.cs: Souřadnice jihozápadního rohu, kde jsou souřadnice minimální
+    UpperCorner[]:
+      type: float
+      required: true
+      ^label.en: Upper corner
+      ^help.en: Coordinates of the north-east corner, where the coordinates are maximal
+      ^label.cs: Horní roh
+      ^help.cs: Souřadnice severovýchodního rohu, kde jsou souřadnice maximální
+    crs:
+      # TODO: should not this be a vocabulary (https://spatialreference.org/) ?
+      type: url
+      label.en: Coordinate reference system
+      help.en: The coordinate reference system of the bounding box.
+      label.cs: Systém souřadnic
+      help.cs: Systém souřadnic ohraničujícího obdélníku.
+    dimensions:
+      type: integer
+      label.en: Dimensions
+      help.en: The number of dimensions of the bounding box (usually 2-3).
+      label.cs: Rozměry
+      help.cs: Počet rozměrů ohraničujícího obdélníku (obvykle 2-3).
+
+time_reference:
+  $id: time_reference
+  # implementation note: 0.5.0: schema is not yet settled, so we use
+  # the edtf-time type as a base. We will need to update this section
+  # when the CCMM is updated.
+  properties:
+    iri:
+      type: keyword
+      label.en: Time reference IRI
+      help.en: IRI of the time reference, must be a resolvable URL pointing to the definition of the time reference.
+      label.cs: IRI časového údaje
+      help.cs: IRI časového údaje, musí být URL vedoucí k definici časového údaje.
+      # implementation note: this IRI will not be shown anywhere in the UI
+    date_information:
+      type: multilingual
+      # implementation note: changed to multilingual. If the input does not provide this,
+      # the lang would be undetermined, so it is not a problem.
+      label.en: Date information
+      help.en: Additional information to the date in text form.
+      label.cs: Informace o datu
+      help.cs: Další informace k datu v textové podobě.
+    date_type:
+      type: vocabulary
+      vocabulary-type: time-reference-types
+      label.en: Date type
+      help.en: Type of the date.
+      label.cs: Typ data
+      help.cs: Typ data
+    date:
+      type: edtf-time
+      label.en: Date
+      help.en:
+        A point or period of time associated with an event in the lifecycle
+        of the resource.
+      label.cs: Datum
+      help.cs: Bod nebo období času spojené s událostí v životním cyklu zdroje.
+      mapping:
+        ignore_malformed: true
+
+provenance_statement:
+  $id: provenance_statement
+  # implementation note: this is not a vocabulary item, it references an external
+  # provenance statement. Will be displayed as a link to the provenance
+  properties:
+    iri:
+      type: keyword
+      label.cs: IRI prohlášení o původu
+      label.en: IRI of provenance statement
+      help.cs: IRI prohlášení o původu, musí být URL vedoucí k definici prohlášení o původu.
+      help.en: IRI of provenance statement, must be a resolvable URL pointing to the definition of the provenance statement.
+      # implementation note: this url must be resolvable and points to the
+      # provenance statement stored in an external system
+    label:
+      type: multilingual
+      label.cs: Popisek
+      help.cs: Popisek prohlášení o původu
+      label.en: Label
+      help.en: Label of the provenance statement
+
+validation_result:
+  $id: validation_result
+  properties:
+    iri:
+      type: keyword
+      label.cs: IRI výsledku validace
+      label.en: IRI of validation result
+      help.cs: IRI výsledku validace, musí být URL vedoucí k definici výsledku validace.
+      help.en: IRI of validation result, must be a resolvable URL pointing to the definition of the validation result.
+      # implementation note: this IRI must be resolvable and points to the
+      # validation result stored in an external system. It will be displayed
+      # as a link to the validation result with the label from the labels field
+    label:
+      type: multilingual
+      label.en: Label
+      help.en: Validation result label
+      label.cs: Popisek
+      help.cs: Popisek výsledku validace
+
+  #
+  # Vocabularies
+  #
+
+vocabulary:
+  $id: vocabulary
+  type: vocabulary
+  marshmallow:
+    class: common.services.schema.CCMMVocabularySchema
+    generate: false
+  ui:
+    marshmallow:
+      class: common.services.ui_schema.CCMMVocabularyUISchema
+      generate: false
+  keys:
+    - id
+    - title
+    - props.iri
+
+dataset:
+  $id: dataset
+  use:
+    - invenio
+  properties:
+    metadata:
+      use: ccmm-common#dataset-metadata

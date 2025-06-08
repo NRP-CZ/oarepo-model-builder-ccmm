@@ -90,6 +90,8 @@ dist/
 .vscode/
 .model_venv
 /tests/test
-build-tests/datasets/
+build-tests/ccmm_common/
+build-tests/ccmm_nma/
+build-tests/ccmm_rdm/
 build-tests/test_import.py
 

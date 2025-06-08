@@ -1,5 +1,7 @@
 #!/bin/bash
 set -e
+set -o pipefail
+
 
 OAREPO_VERSION=${OAREPO_VERSION:-12}
 PYTHON=${PYTHON:-python3}
@@ -19,38 +21,48 @@ pip install -U setuptools pip wheel
 pip install -e .
 
 
-MODEL="datasets"
-VENV=".venv-tests"
+test_model() {
 
-if test -d ./build-tests/$MODEL; then
-	rm -rf ./build-tests/$MODEL
-fi
+	set -e
+	set -o pipefail
 
-oarepo-compile-model ./build-tests/$MODEL.yaml --output-directory ./build-tests/$MODEL -vvv
-if test -d $VENV ; then
-	rm -rf $VENV
-fi
-$PYTHON -m venv $VENV
-. $VENV/bin/activate
-pip install -U setuptools pip wheel nrp-devtools
-pip install "oarepo[tests, rdm]==${OAREPO_VERSION}.*"
+	MODEL="$1"
+	VENV=".venv-tests"
 
-pip install -e "./build-tests/${MODEL}[tests]"
+	if test -d ./build-tests/$MODEL; then
+		rm -rf ./build-tests/$MODEL
+	fi
 
-(
-	echo "def test_import():"
+	oarepo-compile-model ./build-tests/$MODEL.yaml --output-directory ./build-tests/$MODEL -vvv
+
+	if test -d $VENV ; then
+		rm -rf $VENV
+	fi
+	$PYTHON -m venv $VENV
+	. $VENV/bin/activate
+	pip install -U setuptools pip wheel nrp-devtools
+	pip install "oarepo[tests, rdm]==${OAREPO_VERSION}.*"
+
+	pip install -e "./build-tests/${MODEL}[tests]"
+
 	(
-		cd build-tests/datasets/ ; 
-		find . -type f | \
-			egrep "^\./datasets/.*py" | \
-			sed 's/\/__init__.py//' | \
-			sed 's/\.py$//' | \
-			sed 's/\.\///' | \
-			tr '/' '.' | \
-			grep -v '-' | \
-			sed 's/^/    import /' | \
-			sed 's/$/ # noqa/'
-	)
-) > build-tests/test_import.py
-pytest build-tests/test_import.py
+		echo "def test_import():"
+		(
+			cd build-tests/datasets/ ; 
+			find . -type f | \
+				egrep "^\./datasets/.*py" | \
+				sed 's/\/__init__.py//' | \
+				sed 's/\.py$//' | \
+				sed 's/\.\///' | \
+				tr '/' '.' | \
+				grep -v '-' | \
+				sed 's/^/    import /' | \
+				sed 's/$/ # noqa/'
+		)
+	) > build-tests/test_import.py
+	pytest build-tests/test_import.py
+}
 
+test_model ccmm_common
+test_model ccmm_rdm
+test_model ccmm_nma

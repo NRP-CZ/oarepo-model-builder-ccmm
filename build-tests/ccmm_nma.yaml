@@ -15,7 +15,6 @@ plugins:
     - oarepo-model-builder-cf
     - oarepo-model-builder-polymorphic
     - oarepo-model-builder-communities
-    - oarepo-model-builder-rdm
     - oarepo-model-builder-multilingual
     - oarepo-model-builder-ccmm
 
@@ -27,9 +26,7 @@ profiles:
 
 record:
   use:
-    - invenio
-    - rdm
-    - ccmm#dataset
+    - ccmm-nma#dataset
   properties:
     metadata: {}
 

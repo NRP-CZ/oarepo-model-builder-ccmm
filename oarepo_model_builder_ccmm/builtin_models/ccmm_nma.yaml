@@ -1,0 +1,579 @@
+dataset-metadata:
+  $id: dataset-metadata
+  use: ccmm-common#dataset-metadata
+  properties:
+    publication_year:
+      type: integer
+      label.en: Publication year
+      help.en: The year when the dataset was or will be made publicly available.
+      label.cs: Rok vydání
+      help.cs: Rok, kdy byl nebo bude dataset zveřejněn
+
+    versions[]:
+      type: keyword
+      ^label.en: Version(s) of the dataset
+      ^help.en: The version indicator (name or identifier) of a resource.
+    is_described_by[]:
+      use: ccmm-nma#metadata_record
+      ^label.en: Repositories
+      ^help.en: Repositories where the dataset is described.
+      required: true
+      # implementation note: the first one will be the primary repository
+      # that should be displayed for example, in search results. Others
+      # are secondary repositories (harvesting, such as OpenAIRE etc.)
+    identifiers[]:
+      use: ccmm-nma#identifier
+      ^label.en: Dataset identifiers
+    qualified_relations[]:
+      use: ccmm-nma#agent_relationship
+      ^label.en: Qualified relations
+      ^help.en: Relations to agents (such as creators, contributors, publishers)
+
+    related_resources[]:
+      use: ccmm-nma#resource
+      ^label.en: Related resources
+      ^hint.en: A related resource to the dataset.
+      ^label.cs: Související zdroje
+      ^hint.cs: Související zdroje k datasetu
+
+    distributions[]:
+      use: ccmm-nma#distribution
+      ^label.en: Distributions
+
+    terms_of_use:
+      use: ccmm-nma#terms_of_use
+      label.en: Terms of use
+      hint.en: The terms of use for the dataset.
+      label.cs: Podmínky užití
+      hint.cs: Podmínky užití datasetu
+
+    locations[]:
+      use: ccmm-nma#location
+      ^label.en: Locations
+      ^help.en: The geographical areas covered by the dataset.
+      ^label.cs: Lokace
+      ^help.cs: Geografické oblasti pokryté datasetem
+
+    subjects[]:
+      use: ccmm-nma#subject
+      ^label.en: Subjects and keywords
+      ^hint.en: Subjects of the dataset.
+      ^label.cs: Klíčová slova a předmětová hesla
+      ^hint.cs: Klíčová slova datasetu
+
+    funding_references[]:
+      use: ccmm-nma#funding_reference
+      ^label.en: Funding references
+
+metadata_record:
+  $id: metadata_record
+  properties:
+    iri:
+      type: keyword
+      # note: this IRI will not be shown anywhere in the UI, it is a RDF-only thing
+    dates_updated[]:
+      type: date
+      ^label.en: Dates updated
+      ^help.en: Dates on which the resource was changed.
+    date_created:
+      type: date
+      label.en: Date Created
+      help.en: The date on which the metadata record was created.
+    original_repositories[]:
+      use: ccmm-nma#repository
+      ^label.en: Original repositories
+      ^help.en:
+        Link to the repository from which the metadata were originally stored
+        and curated. Note that this link should go the dataset's landing page,
+        not to the repository home page.
+    conforms_to_standards[]:
+      use: ccmm-nma#application_profile
+      ^label.en: Conforms to standards
+      ^help.en: Established standard to which the metadata record conforms.
+    qualified_relations[]:
+      use: ccmm-nma#agent_relationship
+      ^label.en: Qualified relations
+      ^help.en: Qualified relations (such as, creator of the metadata, not of the dataset)
+    languages[]:
+      type: vocabulary
+      vocabulary-type: languages
+      ^label.en: Languages
+      ^help.en: Languages of the dataset's metadata
+
+resource:
+  $id: resource
+  use: ccmm-common#resource
+  properties:
+    qualified_relations[]:
+      use: ccmm-nma#agent_relationship
+      ^label.en: Qualified relations
+      ^help.en: Attachment of resource to the relationship.
+
+    identifiers[]:
+      use: ccmm-nma#identifier
+      ^label.en: Identifiers
+      ^help.en: Identifiers associated with the resource.
+
+identifier:
+  $id: identifier
+  properties:
+    iri:
+      type: keyword
+      # implementation note: this IRI will not be shown anywhere in the UI,
+
+    identifier_scheme:
+      type: vocabulary
+      vocabulary-type: identifier-schemes
+      label.en: Identifier scheme
+      help.en: Scheme URI of the identifier.
+      required: true
+
+    value:
+      type: keyword
+      label.en: Value
+      help.en: Value of the identifer within the given identifier scheme.
+        If the value looks like an URL, it must be a resolvable URL.
+      required: true
+      # implementation note: if the value is an URL, it will be rendered as a link
+      # implementation note: even if this value is not an URL, it might get converted
+      # during upload to NMA to an URL for known identifier schemes
+
+distribution:
+  $id: distribution
+  use: "ccmm-nma#distribution_downloadable_file"
+  # implementation note: the distribution seems not to be settled in CCMM,
+  # so we use the downloadable file as a base. We will need to update this
+  # section when the CCMM is updated.
+
+distribution_downloadable_file:
+  $id: distribution_downloadable_file
+  properties:
+    iri:
+      type: keyword
+      # implementation note: not shown in UI
+    title:
+      type: keyword
+      label.en: Title
+      help.en: A name given to the distributed file.
+    byte_size:
+      type: long-integer
+      label.en: Byte size
+      help.en: The size of a distributed file in bytes.
+      mapping:
+        ignore_malformed: true
+    checksum:
+      use: "ccmm-nma#checksum"
+      label.en: Checksum
+      help.en:
+        A mechanism that can be used to verify that the contents of a distribution
+        have not changed.
+    conforms_to_schemas[]:
+      use: ccmm-nma#application_profile
+      ^label.en: Conforms to schemas
+      ^help.en: Established standards to which the distribution conforms.
+    media_type:
+      type: vocabulary
+      vocabulary-type: media-types
+      label.en: IANA Media type
+      help.en: The media type of the distribution as defined by IANA
+    access_urls[]:
+      type: url
+      ^label.en: Access URLs
+      ^help.en: URLs that give access to the associated file.
+    download_urls[]:
+      type: url
+      ^label.en: Download URLs
+      ^help.en: URLs that are direct links to downloadable files in a given format.
+    format:
+      type: vocabulary
+      vocabulary-type: file-types
+      label.en: Format
+      help.en: The file format of the distribution.
+
+checksum:
+  $id: checksum
+  properties:
+    iri:
+      type: keyword
+      # implementation note: this IRI will not be shown anywhere in the UI
+    algorithm:
+      type: vocabulary
+      vocabulary-type: checksum-algorithms
+      label.en: Algorithm
+      help.en: The algorithm used to calculate the checksum.
+      required: true
+    value:
+      type: keyword
+      label.en: Value
+      help.en: The value of the checksum, encoded as a hex binary
+      required: true
+
+person:
+  $id: person
+  properties:
+    iri:
+      type: keyword
+      # implementation note: this IRI will not be shown anywhere in the UI
+    name:
+      type: keyword
+      label.en: Name
+      help.en: The name of the person.
+        Should be formatted as
+        "family names separated by space, comma, given names separated by space".
+    family_names[]:
+      type: keyword
+      ^label.en: Family names
+      ^help.en: The family names of the person
+      required: true
+      # note: hyphenated family names are allowed
+      # and must be in a single entry (not split into two family names),
+      # e.g. "Smith-Jones"
+    given_names[]:
+      type: keyword
+      ^label.en: Given names
+      ^help.en: The given names of the person
+    affiliations[]:
+      use: ccmm-nma#organization
+      label.en: Affiliations
+      help.en: Affiliations of the person to the organization.
+    identifiers[]:
+      use: ccmm-nma#identifier
+      ^label.en: Person identifiers
+      ^help.en: Identifiers associated with the person.
+    contact_points[]:
+      use: ccmm-nma#contact_details
+      label.en: Contact points
+      help.en: Relevant contact information for the person.
+
+organization:
+  $id: organization
+  properties:
+    iri:
+      type: keyword
+      # implementation note: this IRI will not be shown anywhere in the UI
+    name:
+      type: keyword
+      label.en: Name
+      help.en: Official organizational name in its primary language.
+      required: true
+    alternate_names[]:
+      type: i18nStr
+      ^label.en: Alternate names
+      ^help.en: Alternate organizational names in other languages.
+    identifiers[]:
+      use: ccmm-nma#identifier
+      ^label.en: Organization identifiers
+      ^help.en: Identifiers associated with the organization.
+    contact_points[]:
+      use: ccmm-nma#contact_details
+      ^label.en: Contact points
+      ^help.en: Relevant contact information for the organization.
+
+agent_relationship:
+  $id: agent_relationship
+  properties:
+    iri:
+      type: keyword
+      # implementation note: this IRI will not be shown anywhere in the UI
+    role:
+      type: vocabulary
+      vocabulary-type: agent-roles
+      label.en: Role of the agent
+      help.en: The function of an agent.
+      required: true
+    organization:
+      use: ccmm-nma#organization
+      # implementation note: the schema 0.5.0 only allows agent here without substitution groups
+      # which is probably a mistake, so we allow both organization and person
+    person:
+      use: ccmm-nma#person
+      # implementation note: the schema 0.5.0 only allows agent here without substitution groups
+      # which is probably a mistake, so we allow both organization and person
+      # Also, person is missing from the generated xml schema which is probably a mistake
+
+contact:
+  $id: contact
+  properties:
+    organization:
+      use: ccmm-nma#organization
+      label.en: Organization
+      help.en: The organization that is the contact for the resource.
+      label.cs: Organizace
+      help.cs: Organizace, která je kontaktem pro zdroj.
+
+    person:
+      use: ccmm-nma#person
+      label.en: Person
+      help.en: The person who is the contact for the resource.
+      label.cs: Osoba
+      help.cs: Osoba, která je kontaktem pro zdroj.
+
+terms_of_use:
+  $id: terms_of_use
+  use: ccmm-common#terms_of_use
+  properties:
+    licenses[]:
+      use: "ccmm-nma#license_document"
+      ^label.en: Licenses
+      ^hint.en: Licenses of the dataset.
+      ^label.cs: Licence
+      ^hint.cs: Licence datasetu
+
+    contacts[]:
+      use: ccmm-nma#contact
+      ^label.en: Contacts
+      ^help.en: Contact person/organization for the further details about the terms of use.
+      ^label.cs: Kontakty
+      ^help.cs: Kontaktní osoba/organizace pro další informace o podmínkách užití.
+
+license_document:
+  $id: license_document
+  # implementation note: this is not a vocabulary item, it references an external
+  # license document. Will be displayed as a link to the license document
+  # with the label from the labels field
+  properties:
+    iri:
+      type: keyword
+    label:
+      type: multilingual
+      label.en: Label
+      help.en: Address label
+
+location:
+  $id: location
+  use: ccmm-common#location
+  properties:
+    related_objects[]:
+      use: ccmm-nma#resource
+      ^label.en: Objects related to this location
+      ^help.en: Objects that are related to this location.
+      ^label.cs: Související objekty
+      ^help.cs: Objekty, které jsou s touto lokací spojeny
+
+application_profile:
+  $id: application_profile
+  properties:
+    iri:
+      type: keyword
+      # implementation note: this IRI will must be resolvable and points to the
+      # application profile stored in an external system. It will be displayed
+      # as a link to the application profile with the label from the labels field
+    labels:
+      type: multilingual
+      label.en: Label
+      help.en: Label of application profile
+
+subject:
+  $id: subject
+  properties:
+    iri:
+      type: keyword
+    definitions[]:
+      type: i18nStr
+      ^label.en: Definition
+      ^help.en: Definition of the subject.
+    title[]:
+      type: i18nStr
+      ^label.en: Title
+      ^help.en: Title of the subject
+      required: true
+    classification_code:
+      type: keyword
+      label.en: Classification code
+      help.en: The classification code used for the subject term in the subject
+        scheme.
+      # implementation note: this is not a controlled vocabulary, it is a
+      # free text field that is used to store the code of the subject in the
+      # subject scheme. We prefer to use resolvable IRIs here but we are not
+      # there yet
+    scheme:
+      type: vocabulary
+      vocabulary-type: subject-schemes
+      label.en: Subject scheme
+      help.en: A controlled vocabulary or classification scheme used to describe
+        the subject of a resource. Concepts have a unique id within the subject scheme.
+
+funder:
+  $id: funder
+  properties:
+    person:
+      use: ccmm-nma#person
+      label.en: Person
+      help.en: The person who is the funder or sponsor of the award (grant).
+      label.cs: Osoba
+      help.cs: Osoba, která je poskytovatelem nebo sponzorem ocenění (grantu).
+    organization:
+      use: ccmm-nma#organization
+      label.en: Organization
+      help.en: The organization that is the funder or sponsor of the award (grant).
+      label.cs: Organizace
+      help.cs: Organizace, která je poskytovatelem nebo sponzorem ocenění (grantu).
+
+funding_reference:
+  $id: funding_reference
+  properties:
+    iri:
+      type: keyword
+      # implementation note: this IRI will not be shown anywhere in the UI
+    funding_program:
+      type: keyword
+      label.en: Funding program
+      help.en: Reference to the specific funding program.
+      label.cs: Program financování
+      help.cs: Odkaz na konkrétní program financování.
+    award_title:
+      type: keyword
+      label.en: Award title
+      help.en: The human readable title or name of the award (grant).
+      label.cs: Název ocenění
+      help.cs: Lidsky čitelný název nebo jméno ocenění (grantu).
+    local_identifier:
+      type: keyword
+      label.en: Local identifier
+      help.en: The code assigned by the funder to a sponsored award (grant).
+      label.cs: Místní identifikátor
+      help.cs: Kód přidělený poskytovatelem ocenění (grantu).
+    funders[]:
+      use: ccmm-nma#funder
+      ^label.en: Funders
+      ^help.en: The funder or sponsor of the award (grant) that is funding the
+        resource. This can be either a person or an organization.
+      ^label.cs: Poskytovatelé financování
+      ^help.cs: Poskytovatel nebo sponzor ocenění (grantu), který financuje zdroj.
+
+contact_details:
+  $id: contact_details
+  properties:
+    iri:
+      type: keyword
+      # implementation note: this IRI will not be shown anywhere in the UI
+    dataBoxes[]:
+      type: keyword
+      ^label.en: Data boxes
+      ^help.en: Codes of the data boxes.
+      ^label.cs: Datové schránky
+      ^help.cs: Kódy datových schránek.
+    emails[]:
+      type: keyword
+      ^label.en: Emails
+      ^help.en: Email addresses.
+      ^label.cs: E-maily
+      ^help.cs: E-mailové adresy.
+    phones[]:
+      type: keyword
+      ^label.en: Phones
+      ^help.en: Phone numbers
+      ^label.cs: Telefony
+      ^help.cs: Telefonní čísla
+    addresses[]:
+      use: ccmm-nma#address
+      ^label.en: Addresses
+      ^help.en: Addresses
+      ^label.cs: Adresy
+      ^help.cs: Adresy
+
+address:
+  $id: address
+  properties:
+    iri:
+      type: keyword
+      # implementation note: this IRI will be shown as a link to the address
+      # somewhere. The label will be the address label
+    label:
+      type: multilingual
+      label.en: Label
+      help.en: Address label
+      label.cs: Popisek
+      help.cs: Popisek adresy
+      # implementation note: multilingual
+
+    full_address:
+      type: keyword
+      label.en: Full address
+      help.en: The complete address written as a string, with or without formatting.
+      label.cs: Celá adresa
+      help.cs: Kompletní adresa zapsaná jako řetězec, s formátováním nebo bez něj.
+
+    po_box:
+      type: keyword
+      label.en: PO box
+      help.en: The Post Office Box number.
+      label.cs: P. O. Box
+      help.cs: Poštovní schránka.
+
+    thoroughfares[]:
+      type: keyword
+      ^label.en: Thoroughfares
+      ^help.en: The thoroughfare(s) of the address, such as street, road, avenue etc. A thoroughfare is not necessarily a road, it might be a waterway or some other feature.
+      ^label.cs: Ulice
+      ^help.cs: Ulice, silnice, třída atd. Ulice nemusí být nutně silnice, může to být vodní cesta nebo jiný prvek.
+
+    locator_designators[]:
+      type: keyword
+      ^label.en: Locator designators
+      ^help.en: A number or a sequence of characters that uniquely identifies the locator within the relevant scope(s). The full identification of the locator could include one or more locator designators.
+      ^label.cs: Označení lokátoru
+      ^help.cs: Číslo nebo posloupnost znaků, které jednoznačně identifikují lokátor v rámci příslušného rozsahu. Plná identifikace lokátoru může zahrnovat jedno nebo více označení lokátoru.
+
+    locator_names[]:
+      type: keyword
+      ^label.en: Locator names
+      ^help.en: Proper noun(s) applied to the real world entity identified by the locator. The locator name could be the name of the property or complex, of the building or part of the building, or it could be the name of a room inside a building.
+      ^label.cs: Názvy lokátorů
+      ^help.cs: Vlastní podstatná jména použité k identifikaci reálného světa entity identifikované lokátorem. Název lokátoru může být název nemovitosti nebo komplexu, budovy nebo části budovy, nebo může být název místnosti uvnitř budovy.
+
+    address_areas[]:
+      type: keyword
+      ^label.en: Address areas
+      ^help.en: The name or names of a geographic area or locality that groups a number of addressable objects for addressing purposes, without being an administrative unit. This would typically be part of a city, a neighbourhood or village.
+      ^label.cs: Oblasti adresy
+      ^help.cs: Název nebo názvy geografické oblasti nebo lokality, které sdružují řadu adresovatelných objektů pro účely adresování, aniž by byly správní jednotkou. To by obvykle byla část města, čtvrť nebo vesnice.
+
+    post_names[]:
+      type: keyword
+      ^label.en: Post names
+      ^help.en: The key postal division of the address, usually the city. (INSPIRE's definition is "One or more names created and maintained for postal purposes to identify a subdivision of addresses and postal delivery points.")
+      ^label.cs: Poštovní názvy
+      ^help.cs: Klíčová poštovní divize adresy, obvykle město. (Definice INSPIRE je "Jedno nebo více názvů vytvořených a udržovaných pro poštovní účely k identifikaci pododdělení adres a poštovních doručovacích bodů.")
+
+    administrative_unit_level_1:
+      type: keyword
+      label.en: Administrative unit level 1
+      help.en: The uppermost administrative unit for the address, almost always a country. The range is a literal, conceptually defined by the INSPIRE Geographical Name data type.
+      label.cs: Správní jednotka úrovně 1
+      help.cs: Nejvyšší správní jednotka pro adresu, téměř vždy země. Rozsah je literál, konceptuálně definovaný datovým typem INSPIRE Geographical Name.
+
+    administrative_unit_level_2:
+      type: keyword
+      label.en: Administrative unit level 2
+      help.en: The region of the address, usually a county, state or other such area that typically encompasses several localities. The range is a literal, conceptually defined by the INSPIRE Geographical Name data type.
+      label.cs: Správní jednotka úrovně 2
+      help.cs: Region adresy, obvykle okres, stát nebo jiná taková oblast, která obvykle zahrnuje několik lokalit. Rozsah je literál, konceptuálně definovaný datovým typem INSPIRE Geographical Name.
+
+    post_code:
+      type: keyword
+      label.en: Post code
+      help.en: The post code (a.k.a postal code, zip code etc.). Post codes are common elements in many countries' postal address systems.
+      label.cs: Poštovní směrovací číslo
+      help.cs: Poštovní směrovací číslo (také známé jako PSČ, ZIP kód atd.). Poštovní směrovací čísla jsou běžné prvky v poštovních adresních systémech mnoha zemí.
+
+repository:
+  $id: repository
+  properties:
+    iri:
+      type: keyword
+      # implementation note: this IRI is a URL of the record within the repository,
+      # it will be displayed as a link to the repository record.
+      # the labels should be the repository name
+    label:
+      type: multilingual
+      label.en: Repository name
+      help.en: Repository name
+
+dataset:
+  $id: dataset
+  use:
+    - invenio
+  properties:
+    metadata:
+      use: ccmm-nma#dataset-metadata
