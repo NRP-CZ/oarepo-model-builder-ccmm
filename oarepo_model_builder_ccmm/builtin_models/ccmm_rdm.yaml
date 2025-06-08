@@ -1,0 +1,162 @@
+#
+# This is a CCMM YAML file that is to be used in production repositories (not NMA)
+#
+dataset-metadata:
+  $id: dataset-metadata
+  use: ccmm-common#dataset-metadata
+  properties:
+    # This schema uses ccmm-common dataset-metadata as a base and extends it with
+    # properties that are similar to ccmm but are already present in the RDM schema
+    # in a different way.
+    # We do that because we want to reuse as much as possible from the Invenio RDM.
+    identifiers[]:
+      use: rdm-elements#identifier
+      ^label.en: Alternate identifiers
+      ^hint.en: An alternate identifiers for the dataset (apart from the primary DOI).
+      ^label.cs: Alternativní identifikátory
+      ^hint.cs: Alternativní identifikátor datasetu (kromě primárního DOI)
+      ^marshmallow:
+        field: "{{oarepo_runtime.services.schema.rdm.RecordIdentifierField}}()"
+
+    funding_references[]:
+      use: rdm-elements#funding
+      ^label.en: Funding
+      ^hint.en: Information about the funding of the dataset.
+      ^label.cs: Financování
+      ^hint.cs: Informace o financování datasetu
+
+    subjects[]:
+      use: rdm-elements#subject
+      ^label.en: Subjects and keywords
+      ^hint.en: Subjects of the dataset.
+      ^label.cs: Klíčová slova a předmětová hesla
+      ^hint.cs: Klíčová slova datasetu
+
+    date_issued:
+      type: date
+      required: true
+      label.en: Date Issued
+      hint.en: The date when the dataset was or will be made publicly available.
+      label.cs: Datum vydání
+      hint.cs: Datum, kdy byl dataset nebo bude zveřejněn
+
+    creators[]:
+      use: rdm-elements#creatibutor
+      ^label.en: Creators
+      ^hint.en: People or organizations responsible for creating the dataset.
+      ^label.cs: Autoři
+      ^hint.cs: Osoby nebo organizace odpovědné za vytvoření datasetu
+
+    contributors[]:
+      use: rdm-elements#creatibutor
+      ^label.en: Contributors
+      ^hint.en: People or organizations responsible for contributing to the dataset.
+      ^label.cs: Přispěvatelé
+      ^hint.cs: Osoby nebo organizace odpovědné za přispění k datasetu
+
+    publisher:
+      use: rdm-elements#creatibutor
+      label.en: Publisher
+      hint.en: Person or organization responsible for publishing the dataset.
+      label.cs: Vydavatel
+      hint.cs: Osoba nebo organizace odpovědná za publikaci datasetu
+
+    related_resources[]:
+      use: ccmm-rdm#resource
+      ^label.en: Related resources
+      ^hint.en: A related resource to the dataset.
+      ^label.cs: Související zdroje
+      ^hint.cs: Související zdroje k datasetu
+
+    terms_of_use:
+      use: ccmm-rdm#terms_of_use
+      label.en: Terms of use
+      hint.en: The terms of use for the dataset.
+      label.cs: Podmínky užití
+      hint.cs: Podmínky užití datasetu
+
+    locations[]:
+      use: ccmm-rdm#location
+      ^label.en: Locations
+      ^help.en: The geographical areas covered by the dataset.
+      ^label.cs: Lokace
+      ^help.cs: Geografické oblasti pokryté datasetem
+
+resource:
+  $id: resource
+  use: ccmm-common#resource
+  properties:
+    creators[]:
+      use: rdm-elements#creatibutor
+      ^label.en: Creators
+      ^hint.en: People or organizations responsible for creating the resource.
+      ^label.cs: Autoři
+      ^hint.cs: Osoby nebo organizace odpovědné za vytvoření souvisejícího zdroje
+    contributors[]:
+      use: rdm-elements#creatibutor
+      ^label.en: Contributors
+      ^hint.en: People or organizations responsible for contributing to the resource.
+      ^label.cs: Přispěvatelé
+      ^hint.cs: Osoby nebo organizace odpovědné za přispění k souvisejícímu zdroji
+    publisher:
+      use: rdm-elements#creatibutor
+      label.en: Publisher
+      hint.en: Person or organization responsible for publishing the resource.
+      label.cs: Vydavatel
+      hint.cs: Osoba nebo organizace odpovědná za publikaci souvisejícího zdroje
+
+    identifiers[]:
+      use: rdm-elements#identifier
+      ^label.en: Identifiers
+      ^hint.en: Identifiers for the related resource.
+      ^label.cs: Identifikátory
+      ^hint.cs: Identifikátory souvisejícího zdroje
+      ^marshmallow:
+        field: "{{oarepo_runtime.services.schema.rdm.RelatedRecordIdentifierField}}()"
+
+    # TODO: journal for articles
+    # TODO: event for conference papers
+
+terms_of_use:
+  $id: terms_of_use
+  use: ccmm-common#terms_of_use
+
+  properties:
+    licenses[]:
+      type: vocabulary
+      vocabulary-type: licenses
+      ^label.en: Licenses
+      ^hint.en: Licenses of the dataset.
+      ^label.cs: Licence
+      ^hint.cs: Licence datasetu
+
+    contacts[]:
+      use: ccmm-rdm#contact
+      ^label.en: Contacts
+      ^help.en: Contact person/organization for the further details about the terms of use.
+      ^label.cs: Kontakty
+      ^help.cs: Kontaktní osoba/organizace pro další informace o podmínkách užití.
+
+location:
+  $id: location
+  use: ccmm-common#location
+  properties:
+    related_objects[]:
+      use: ccmm-rdm#resource
+      ^label.en: Objects related to this location
+      ^help.en: Objects that are related to this location.
+      ^label.cs: Související objekty
+      ^help.cs: Objekty, které jsou s touto lokací spojeny
+
+contact:
+  $id: contact
+  use: rdm-elements#person_or_org
+
+dataset:
+  $id: dataset
+  use:
+    - invenio
+    - rdm
+  properties:
+    metadata:
+      use: ccmm-rdm#dataset-metadata
